@@ -1,0 +1,11 @@
+[
+    {
+        "ResourceType": "AWS::S3::Bucket",
+        "LogicalResourceId":
+            "MyBucket"
+        ,
+        "ResourceIdentifier": {
+            "BucketName":"serverless-practice-s3-dev"
+        }
+    }
+]

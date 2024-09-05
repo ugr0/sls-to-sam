@@ -1,0 +1,41 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: AWS SAM template for the sam-practice-service
+Globals:
+  Function:
+    Runtime: python3.9
+    Timeout: 3
+    MemorySize: 128
+Resources:
+  HelloFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handler.hello
+      FunctionName:
+        Fn::Sub: ${StackBaseName}-${Stage}
+      CodeUri: s3://aws-sam-cli-managed-default-samclisourcebucket-bq1tk4lo0ar5/sam-practice-s3-dev/9c1ab3b534f91bf8fd80f290c6f788d7
+    Metadata:
+      SamResourceId: HelloFunction
+  MyBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName:
+        Fn::Sub: ${Service}-${Stage}
+Parameters:
+  Stage:
+    Type: String
+    Default: dev
+  StackBaseName:
+    Type: String
+    Default: sam-practice-s3
+  Service:
+    Type: String
+    Default: serverless-practice-s3
+Outputs:
+  HelloFunction:
+    Description: Hello Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - HelloFunction
+      - Arn

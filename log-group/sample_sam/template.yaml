@@ -1,0 +1,42 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: AWS SAM template for the sam-practice-service
+
+Globals:
+  Function:
+    Runtime: python3.9
+    Timeout: 3
+    MemorySize: 128
+
+Resources:
+  HelloFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handler.hello
+      FunctionName: !Sub "${StackBaseName}-${Stage}"
+      LoggingConfig:
+        LogGroup: !Sub /aws/lambda/${Service}-${Stage}-hello
+
+  HelloLog:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${Service}-${Stage}-hello
+Parameters:
+  Stage:
+    Type: String
+    Default: dev
+  StackBaseName:
+    Type: String
+    Default: sam-practice-service
+
+  # 移行前のServerless frameworkのスタック名
+  Service:
+    Type: String
+    Default: serverless-practice-service
+
+Outputs:
+  HelloFunction:
+    Description: "Hello Lambda Function ARN"
+    Value: !GetAtt HelloFunction.Arn
+

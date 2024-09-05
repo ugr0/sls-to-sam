@@ -1,0 +1,168 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "AWS SAM template for the sam-practice-service",
+  "Parameters": {
+    "Stage": {
+      "Type": "String",
+      "Default": "dev"
+    },
+    "StackBaseName": {
+      "Type": "String",
+      "Default": "sam-practice-s3"
+    },
+    "Service": {
+      "Type": "String",
+      "Default": "serverless-practice-s3"
+    }
+  },
+  "Outputs": {
+    "HelloFunction": {
+      "Description": "Hello Lambda Function ARN",
+      "Value": {
+        "Fn::GetAtt": [
+          "HelloFunction",
+          "Arn"
+        ]
+      }
+    }
+  },
+  "Resources": {
+    "HelloFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Metadata": {
+        "SamResourceId": "HelloFunction"
+      },
+      "Properties": {
+        "Code": {
+          "S3Bucket": "aws-sam-cli-managed-default-samclisourcebucket-bq1tk4lo0ar5",
+          "S3Key": "sam-practice-s3-dev/9335bc482bc6bef350bd7e180ee647b6"
+        },
+        "FunctionName": {
+          "Fn::Sub": "${StackBaseName}-${Stage}"
+        },
+        "Handler": "handler.hello",
+        "MemorySize": 128,
+        "Role": {
+          "Fn::GetAtt": [
+            "HelloFunctionRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "python3.9",
+        "Timeout": 3,
+        "Tags": [
+          {
+            "Key": "lambda:createdBy",
+            "Value": "SAM"
+          }
+        ]
+      }
+    },
+    "HelloFunctionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Action": [
+                "sts:AssumeRole"
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com"
+                ]
+              }
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        ],
+        "Tags": [
+          {
+            "Key": "lambda:createdBy",
+            "Value": "SAM"
+          }
+        ]
+      }
+    },
+    "HelloFunctionApiEventPermission": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Ref": "HelloFunction"
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Sub": [
+            "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${__ApiId__}/${__Stage__}/GET/",
+            {
+              "__ApiId__": {
+                "Ref": "ServerlessHttpApi"
+              },
+              "__Stage__": "*"
+            }
+          ]
+        }
+      }
+    },
+    "ServerlessHttpApi": {
+      "Type": "AWS::ApiGatewayV2::Api",
+      "Properties": {
+        "Body": {
+          "info": {
+            "version": "1.0",
+            "title": {
+              "Ref": "AWS::StackName"
+            }
+          },
+          "paths": {
+            "/": {
+              "get": {
+                "x-amazon-apigateway-integration": {
+                  "httpMethod": "POST",
+                  "type": "aws_proxy",
+                  "uri": {
+                    "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${HelloFunction.Arn}/invocations"
+                  },
+                  "payloadFormatVersion": "2.0"
+                },
+                "responses": {}
+              }
+            }
+          },
+          "openapi": "3.0.1",
+          "tags": [
+            {
+              "name": "httpapi:createdBy",
+              "x-amazon-apigateway-tag-value": "SAM"
+            }
+          ]
+        }
+      }
+    },
+    "ServerlessHttpApiApiGatewayDefaultStage": {
+      "Type": "AWS::ApiGatewayV2::Stage",
+      "Properties": {
+        "ApiId": {
+          "Ref": "ServerlessHttpApi"
+        },
+        "StageName": "$default",
+        "Tags": {
+          "httpapi:createdBy": "SAM"
+        },
+        "AutoDeploy": true
+      }
+    },
+    "MyBucket": {
+      "Type": "AWS::S3::Bucket",
+      "DeletionPolicy": "Retain",
+      "BucketName": {
+          "Sub": "${Service}-${Stage}"
+      }
+    }
+  }
+}

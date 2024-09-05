@@ -1,0 +1,25 @@
+service: sls-sns-sample
+frameworkVersion: "2"
+
+provider:
+  name: aws
+  runtime: python3.8
+  stage: dev
+  region: ap-northeast-1
+
+functions:
+  PostToSlack:
+    handler: handler.invoke
+    events:
+      - sns:
+          arn: !Ref SnsTopic
+          topicName: snsTopic
+resources:
+  Resources:
+    SnsTopic:
+      Type: AWS::SNS::Topic
+      DeletionPolicy: Retain
+  Outputs:
+    snsTopicArn:
+      Description: "ARN of SNS Topic"
+      Value: !Ref SnsTopic

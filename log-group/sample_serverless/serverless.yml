@@ -1,0 +1,49 @@
+# https://github.com/serverless/examples/tree/v3/aws-python-http-api
+service: serverless-practice-service
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.9
+  region: ap-northeast-1
+  stage: ${opt:stage, self:custom.defaultStage}
+
+custom:
+  defaultStage: dev
+
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+            - s3:GetObject
+          Resource:
+            - arn:aws:s3:::${self:provider.stage}-${self:service}/*
+        - Effect: Allow
+          Action:
+            - s3:ListBucket
+          Resource:
+            - arn:aws:s3:::${self:provider.stage}-${self:service}
+
+functions:
+  hello:
+    handler: handler.hello
+    events:
+      - httpApi:
+          path: /
+          method: get
+
+# resources:
+#   Resources:
+#     HelloLogGroup:
+#       Type: AWS::Logs::LogGroup
+#       DeletionPolicy: Retain
+#       Properties:
+#         LogGroupName: "/aws/lambda/${self:service}-${self:provider.stage}-hello"
+
+    # MyBucket:
+    #   Type: AWS::S3::Bucket
+    #   DeletionPolicy: Retain
+    #   Properties:
+    #     BucketName: ${self:provider.stage}-${self:service}

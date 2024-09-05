@@ -1,0 +1,11 @@
+[
+    {
+        "ResourceType": "AWS::Logs::LogGroup",
+        "LogicalResourceId":
+            "HelloLog"
+        ,
+        "ResourceIdentifier": {
+            "LogGroupName":"/aws/lambda/serverless-practice-service-dev-hello"
+        }
+    }
+]

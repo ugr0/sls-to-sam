@@ -1,0 +1,11 @@
+[
+    {
+        "ResourceType": "AWS::SNS::Topic",
+        "LogicalResourceId":
+            "SnsTopic"
+        ,
+        "ResourceIdentifier": {
+            "TopicArn":"arn:aws:sns:ap-northeast-1:046814740991:sls-sns-sample-dev-SnsTopic-XtsLNj6k4rTI"
+        }
+    }
+]

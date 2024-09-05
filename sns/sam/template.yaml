@@ -1,0 +1,26 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: SAM template for SNS to Lambda integration
+
+Resources:
+  PostToSlackFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handler.invoke
+      Runtime: python3.8
+      Events:
+        SNSEvent:
+          Type: SNS
+          Properties:
+            Topic: !Ref SnsTopic
+
+  SnsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: snsTopic
+    DeletionPolicy: Retain
+
+Outputs:
+  SnsTopicArn:
+    Description: "ARN of SNS Topic"
+    Value: !Ref SnsTopic
